@@ -9,6 +9,9 @@ const courseController = require('../controllers/courseController');
 
 // Routes pour les cours
 router.post('/', courseController.createCourse);
+router.get('/', (req, res) => {
+    res.send('List of courses');
+});
 router.get('/:id', courseController.getCourse);
 router.get('/stats', courseController.getCourseStats);
 

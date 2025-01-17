@@ -2,46 +2,51 @@
 // Question: Quelle est la meilleure façon de gérer le démarrage de l'application ?
 
 const express = require('express');
-const config = require('./config/env');
-const db = require('./config/db');
-
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 const courseRoutes = require('./routes/courseRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 
 const app = express();
 
-async function startServer() {
+function configureExpress(app) {
+  app.use(cors());
+  app.use(bodyParser.json());
+  app.use('/api/courses', courseRoutes); 
+  app.use('/api/students', studentRoutes); 
+}
+
+async function gracefulShutdown(signal) {
+  console.log(`Received signal: ${signal}. Closing server...`);
   try {
-    // TODO: Initialiser les connexions aux bases de données
-    await mongoose.connect('mongodb://localhost:27017/crud', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    console.log('Connected to MongoDB!');
-    // TODO: Configurer les middlewares Express
-    const app = express();
-    app.use(cors());
-    app.use(bodyParser.json());
-    // TODO: Monter les routes
-    app.use('/users', userRoutes);
-    app.use('/products', productRoutes); 
-    // TODO: Démarrer le serveur
-    const port = 3000;
-    app.listen(port, () => {
-      console.log(`Server is running on http://localhost:${port}`);
-    });
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed.');
+    process.exit(0);
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('Error during shutdown:', error);
     process.exit(1);
   }
+}
 
+async function startServer() {
+  try {
+    await mongoose.connect('mongodb://localhost:27017/yourdbname', {
+      // useNewUrlParser and useUnifiedTopology are no longer needed
+    });
+    console.log('Connected to MongoDB!');
 
-// Gestion propre de l'arrêt
-process.on('SIGTERM', async () => {
-  // TODO: Implémenter la fermeture propre des connexions
-  gracefulShutdown('SIGTERM')
-});
+    configureExpress(app);
 
+    const server = app.listen(3000, () => {
+      console.log('Server is running on port 3000');
+    });
+
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  } catch (error) {
+    console.error('Failed to start server:', error);
+  }
 }
 
 startServer();

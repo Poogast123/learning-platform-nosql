@@ -43,8 +43,51 @@ async function createCourse(req, res) {
   }
 }
 
+async function getCourse(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'ID de cours invalide' });
+    }
+
+    const db = mongoService.getDb();
+    const course = await db.collection('courses').findOne({ _id: new ObjectId(id) });
+
+    if (!course) {
+      return res.status(404).json({ error: 'Cours non trouvé' });
+    }
+
+    res.status(200).json(course);
+  } catch (error) {
+    console.error('Erreur lors de la récupération du cours:', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+}
+
+async function getCourseStats(req, res) {
+  try {
+    const db = mongoService.getDb();
+    const stats = await db.collection('courses').aggregate([
+      {
+        $group: {
+          _id: null,
+          totalCourses: { $sum: 1 },
+          averageStudents: { $avg: '$studentsCount' }
+        }
+      }
+    ]).toArray();
+
+    res.status(200).json(stats[0]);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des statistiques des cours:', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+}
+
 // Export des contrôleurs
 module.exports = {
-  // TODO: Exporter les fonctions du contrôleur
-  createCourse
+  createCourse,
+  getCourse,
+  getCourseStats
 };
