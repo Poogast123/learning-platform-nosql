@@ -1,3 +1,174 @@
+Prérequis et Configuration de l'Application
+
+Prérequis
+
+1. Node.js : Assurez-vous que Node.js est installé. Vous pouvez le télécharger depuis https://nodejs.org/.
+2. MongoDB : Assurez-vous que MongoDB est installé et en cours d'exécution. Vous pouvez le télécharger depuis https://www.mongodb.com/.
+3. Redis : Assurez-vous que Redis est installé et en cours d'exécution. Vous pouvez le télécharger depuis https://redis.io/.
+
+Configuration
+
+1. Cloner le dépôt : Clonez le dépôt sur votre machine locale.
+   git clone <repository-url>
+   cd learning-platform-nosql
+
+2. Installer les dépendances : Installez les packages Node.js requis.
+   npm install
+
+3. Configurer MongoDB : Assurez-vous que MongoDB est en cours d'exécution sur votre machine locale ou mettez à jour la chaîne de connexion dans app.js pour pointer vers votre instance MongoDB.
+   await mongoose.connect('mongodb://localhost:27017/yourdbname', {  });
+
+4. Configurer Redis : Assurez-vous que Redis est en cours d'exécution sur votre machine locale ou mettez à jour les paramètres de connexion Redis dans vos fichiers de service si nécessaire.
+
+Exécution de l'application
+
+1. Démarrer le serveur : Exécutez l'application avec Node.js.
+   node src/app.js
+
+2. Vérifier que le serveur fonctionne : Vous devriez voir un message indiquant que le serveur est en cours d'exécution et connecté à MongoDB.
+   Connected to MongoDB!
+   Server is running on port 3000
+Utilisation de l'API
+Vous pouvez utiliser des outils comme :
+- Postman (https://www.postman.com/)
+- curl (https://curl.se/)
+
+pour interagir avec les points de terminaison de l'API.
+
+Points de terminaison des Cours
+
+1. Créer un cours :
+   - Endpoint : POST /api/courses
+   - Corps de la requête :
+     {
+       "title": "Titre du Cours",
+       "description": "Description du Cours",
+       "teacherId": "60d5f9b8f8d2c72b8c8b4567"
+     }
+
+2. Obtenir tous les cours :
+   - Endpoint : GET /api/courses
+
+3. Obtenir un cours spécifique :
+   - Endpoint : GET /api/courses/:id
+   - Exemple : GET /api/courses/60d5f9b8f8d2c72b8c8b4567
+
+4. Obtenir des statistiques sur les cours :
+   - Endpoint : GET /api/courses/stats
+
+Points de terminaison des Étudiants
+
+1. Créer un étudiant :
+   - Endpoint : POST /api/students
+   - Corps de la requête :
+     {
+       "name": "Nom de l'Étudiant",
+       "age": 20,
+       "courseId": "60d5f9b8f8d2c72b8c8b4567"
+     }
+
+2. Obtenir tous les étudiants :
+   - Endpoint : GET /api/students
+
+3. Obtenir un étudiant spécifique :
+   - Endpoint : GET /api/students/:id
+   - Exemple : GET /api/students/60d5f9b8f8d2c72b8c8b4567
+
+Arrêt propre (Graceful Shutdown)
+
+L'application est configurée pour gérer un arrêt propre. Elle fermera la connexion MongoDB et quittera le processus proprement lorsqu'elle recevra un signal de terminaison (par exemple, SIGINT ou SIGTERM).
+
+
+
+
+Structure du Projet : learning-platform-nosql
+
+learning-platform-nosql/
+├── src/
+│   ├── config/
+│   │   ├── db.js
+│   │   ├── env.js
+│   ├── controllers/
+│   │   ├── courseController.js
+│   │   ├── studentController.js
+│   ├── routes/
+│   │   ├── courseRoutes.js
+│   │   ├── studentRoutes.js
+│   ├── services/
+│   │   ├── mongoService.js
+│   │   ├── redisService.js
+│   ├── app.js
+├── .env
+├── package.json
+├── package-lock.json
+
+Description des dossiers et fichiers
+
+- src/: Contient tout le code source de l'application.
+  - config/: Contient les fichiers de configuration.
+    - db.js: Gère les connexions à MongoDB et Redis.
+    - env.js: Gère la validation des variables d'environnement.
+  - controllers/: Contient la logique métier pour les différentes entités.
+    - courseController.js: Gère les opérations liées aux cours.
+    - studentController.js: Gère les opérations liées aux étudiants.
+  - routes/: Contient les définitions des routes de l'application.
+    - courseRoutes.js: Définit les routes pour les cours.
+    - studentRoutes.js: Définit les routes pour les étudiants.
+  - services/: Contient des services utilitaires pour interagir avec les bases de données et le cache.
+    - mongoService.js: Fournit des fonctions utilitaires pour MongoDB.
+    - redisService.js: Fournit des fonctions utilitaires pour Redis.
+  - app.js: Point d'entrée principal de l'application. Configure et démarre le serveur Express.
+-.env: Fichier de configuration des variables d'environnement (non partagé, mais généralement présent).
+- package.json: Fichier de configuration de npm, liste les dépendances et les scripts.
+- package-lock.json: Fichier généré automatiquement par npm pour verrouiller les versions des dépendances.
+
+
+
+
+Les choix techniques que vous avez faits
+
+Organisation du projet
+
+- Séparation des responsabilités: Le projet est organisé en différents dossiers (`controllers`, `routes`, `services`, `config`) pour séparer les responsabilités et faciliter la maintenance.
+  - `controllers/`: Contient la logique métier pour les différentes entités.
+  - `routes/`: Définit les routes de l'application.
+  - `services/`: Fournit des fonctions utilitaires pour interagir avec les bases de données et le cache.
+  - `config/`: Gère les configurations et les connexions aux bases de données.
+
+Utilisation de MongoDB et Redis
+
+- MongoDB: Utilisé comme base de données principale pour stocker les informations sur les cours et les étudiants.
+  - Avantages: Flexible, évolutif, et bien adapté pour les applications nécessitant une base de données NoSQL.
+- Redis: Utilisé pour le caching afin d'améliorer les performances de l'application.
+  - Avantages: Très rapide, idéal pour le stockage temporaire de données fréquemment accédées.
+
+Middleware et gestion des requêtes
+- Express.js: Utilisé comme framework de serveur web pour gérer les requêtes HTTP.
+  - Avantages: Léger, flexible, et dispose d'un large écosystème de middleware.
+- CORS: Utilisé pour permettre les requêtes cross-origin.
+- body-parser: Utilisé pour parser les corps des requêtes HTTP en JSON.
+
+Gestion des variables d’environnement
+
+- dotenv: Utilisé pour charger les variables d'environnement à partir d'un fichier `.env`.
+  - Avantages: Permet de gérer les valeurs sensibles comme les clés API ou les chaînes de connexion de manière sécurisée.
+
+Gestion des erreurs et arrêt gracieux
+
+- Gestion centralisée des erreurs: Les erreurs sont gérées de manière centralisée pour assurer une meilleure maintenance et débogage.
+- Arrêt gracieux: L'application est configurée pour fermer proprement les connexions à MongoDB lors de la réception de signaux de terminaison (`SIGINT`, `SIGTERM`).
+
+Validation des données
+
+- Validation des variables d'environnement: Les variables d'environnement sont validées au démarrage pour s'assurer que toutes les valeurs requises sont présentes.
+- Validation des IDs: Les IDs MongoDB sont validés avant d'être utilisés dans les requêtes pour éviter les erreurs.
+
+
+
+
+
+
+
 - Question: Comment organiser le point d'entrée de l'application ?
 
 Il doit être limité à des tâches spécifiques.
@@ -105,18 +276,4 @@ Facilité de test unitaire
 Séparation des préoccupations (Separation of Concerns)
 Facilité de maintenance et d'évolution
 Organisation pour les équipes de développement
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
